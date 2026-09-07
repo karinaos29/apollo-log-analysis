@@ -10,4 +10,19 @@ a locally-run foundation model, prompted directly on the session's JSON log.
 Early stage — model shortlisting and prompt design, first comparison runs
 in progress. See `docs/` for context and open questions.
 
-## Structure
+## Background
+
+Each session produces a JSON log and a PDF report. The PDF's current
+"AI-Generated Summary" is a fixed score-to-adjective template with no
+reference to specific days, events, or actions — even though the JSON
+contains a rich event history and day-by-day score trajectories. The goal
+is a locally-run model that generates two parts per report, matching the
+platform's existing structure:
+
+- **Descriptive part** — a neutral, factual reconstruction of what happened
+  (specific days/events), from the system's point of view
+- **Evaluative part** — a higher-level, always encouragingly-toned
+  assessment of what the results meant
+
+See `prompts/` for the current multi-step prompt design and `docs/` for the
+data schema and design rationale.
