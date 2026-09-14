@@ -1,0 +1,159 @@
+{
+  "session_code": "9D50DE4B",
+  "session_status": "active",
+  "export_timestamp": "2026-08-30T20:27:29.720844",
+  "total_players": 1,
+  "active_players": 0,
+  "successful_exports": 1,
+  "players_data": [
+    {
+      "player_name": "Maria",
+      "player_id": "27b38ee5-a268-41e1-83b8-1bfd5b0104b7",
+      "simulation_id": "9D50DE4B_27b38ee5-a268-41e1-83b8-1bfd5b0104b7",
+      "export_timestamp": "2026-08-30T20:27:29.720791",
+      "simulation_metadata": {
+        "session_code": "9D50DE4B",
+        "player_id": "27b38ee5-a268-41e1-83b8-1bfd5b0104b7",
+        "current_day": 1,
+        "simulation_days": 30,
+        "is_completed": false,
+        "end_reason": null
+      },
+      "player_metadata": {
+        "player_info": {
+          "player_id": "27b38ee5-a268-41e1-83b8-1bfd5b0104b7",
+          "player_name": "Maria",
+          "session_code": "9D50DE4B"
+        },
+        "feedback": {
+          "user_feedback": null,
+          "feedback_submitted": false,
+          "feedback_timestamp": null
+        },
+        "ai_content": {
+          "text_summary": null,
+          "game_story_text": null,
+          "text_summary_fr": null,
+          "game_story_text_fr": null
+        },
+        "audit": {
+          "created_at": "2026-08-30T20:26:33.858066",
+          "started_at": null,
+          "completed_at": null,
+          "end_reason": null
+        },
+        "scenario": {
+          "scenario_id": null,
+          "scenario_name": "Post-Pandemic Financial Recovery",
+          "custom_params": {
+            "simulation_control_mode": "start_in_paused",
+            "timed_events_enabled": true,
+            "event_timeout_seconds": 120,
+            "timed_summaries_enabled": true,
+            "summary_timeout_seconds": 60,
+            "collect_feedback": true,
+            "report_type": "full",
+            "report_include_metrics": false,
+            "report_include_aim_chart": false,
+            "report_include_ai_summary": true,
+            "report_include_story": true,
+            "report_include_feedback": true,
+            "report_include_events": false,
+            "report_include_actions": false
+          }
+        }
+      },
+      "daily_metrics": null,
+      "final_metrics": {
+        "user_feedback": null,
+        "feedback_submitted": false,
+        "feedback_timestamp": null
+      },
+      "events": {
+        "event_history": [],
+        "total_events": 0
+      },
+      "policies": {
+        "policy_history": {},
+        "active_policies": {}
+      },
+      "performance": {
+        "score": 72.29,
+        "aim_scores": {
+          "staff_wellbeing": 72.74826997981556,
+          "patient_health": 71.25,
+          "patient_experience": 84.581819052729,
+          "cost_reduction": 60.595324394153465
+        },
+        "final_metrics": {
+          "day": 1,
+          "timestamp": "2025-01-01T23:30:00",
+          "staff_wellbeing": 72.74826997981556,
+          "patient_health": 71.25,
+          "patient_experience": 84.581819052729,
+          "cost_reduction": 60.595324394153465,
+          "staff_count": 14,
+          "nurses_total": 8,
+          "doctors_total": 6,
+          "nurses_working": 2,
+          "doctors_working": 3,
+          "staff_on_leave": 0,
+          "staff_resignations": 0,
+          "avg_staff_effectiveness": 50.594227545086696,
+          "patients_active": 30,
+          "patients_waiting": 0,
+          "patients_treated_successfully": 20,
+          "patients_treated_unsuccessfully": 2,
+          "patients_treated_successfully_total": 20,
+          "patients_treated_unsuccessfully_total": 2,
+          "patients_transferred": 0,
+          "avg_patient_experience_mental": 81.19697143879132,
+          "avg_patient_experience_physical": 87.96666666666667,
+          "beds_occupied": 12,
+          "beds_available": 12,
+          "beds_cleaning_required": 0,
+          "bed_utilization_rate": 0.5,
+          "technology_level": 0,
+          "finance_remaining": 1669162.6300440251,
+          "time_hours_remaining": 10047,
+          "hr_effectiveness": 50,
+          "active_partnerships": 0,
+          "partnership_count": 0,
+          "workload_efficiency": 1,
+          "admin_burden_modifier": 1,
+          "reputation_score": 80,
+          "avg_exhaustion": 30.349920080737736,
+          "avg_mental_distance": 30.445714285714285,
+          "avg_cognitive_impairment": 30.297142857142855,
+          "avg_emotional_impairment": 30.203571428571426,
+          "avg_presenteeism": 30,
+          "avg_absenteeism": 0,
+          "patients_active_mild": 18,
+          "patients_active_moderate": 9,
+          "patients_active_severe": 3,
+          "arrivals_today_total": 30,
+          "arrivals_today_inpatient": 12,
+          "arrivals_today_outpatient": 18,
+          "arrivals_today_mild": 18,
+          "arrivals_today_moderate": 9,
+          "arrivals_today_severe": 3,
+          "discharges_today": 22,
+          "deaths_today": 2,
+          "finance_initial": 1650406.4691497476,
+          "total_revenue": 66181,
+          "total_wages_paid": 20129.086365932813,
+          "total_treatment_costs": 6375,
+          "total_operational_costs": 20920.752739726013,
+          "total_actions_costs": 0,
+          "net_profit_loss": 18756.16089434117,
+          "in_debt": false,
+          "days_in_debt": 0,
+          "total_interest_paid": 0,
+          "debt_penalties_active": false,
+          "active_buffs": []
+        }
+      }
+    }
+  ],
+  "errors": null
+}
