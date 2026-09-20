@@ -141,7 +141,7 @@ def groundedness_score(json_path: str, full_text: str) -> float:
     if total == 0:
         return None
     hits = sum(1 for e in facts["events"] if e.lower() in full_text.lower())
-    hits += sum(1 for d in facts["sig_days"] if f"day {d}" in full_text.lower() or f"day{d}" in full_text.lower())
+    hits += sum(1 for d in facts["sig_days"] if re.search(rf"\bday\s*{d}\b", full_text, re.IGNORECASE))
     return round(hits / total, 2)
 
 

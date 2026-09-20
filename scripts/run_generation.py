@@ -66,7 +66,7 @@ def chat(messages: list, model: str) -> str:
     return resp.json()["message"]["content"]
 
 
-def run(json_path: str, model: str):
+def run(json_path: str, model: str, output_dir: str = None):
     log_text = Path(json_path).read_text()
     # sanity check it's valid JSON before spending tokens on it
     json.loads(log_text)
@@ -96,9 +96,12 @@ def run(json_path: str, model: str):
     elapsed = time.time() - t0
     print(f"(total time: {elapsed:.1f}s)")
 
-    out_path = Path(f"output_{model.replace(':', '_')}.md")
+    out_dir = Path(output_dir) if output_dir else Path(".")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"output_{model.replace(':', '_')}.md"
     out_path.write_text(
         f"# Output — {model}\n\n"
+        f"*(Generation time: {elapsed:.1f}s)*\n\n"
         f"## Analysis (internal)\n{analysis}\n\n"
         f"## Descriptive part\n{descriptive}\n\n"
         f"## Evaluative part\n{evaluative}\n"
@@ -107,7 +110,8 @@ def run(json_path: str, model: str):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python run_generation.py <log.json> <model_name>")
+    if len(sys.argv) < 3:
+        print("Usage: python run_generation.py <log.json> <model_name> [output_dir]")
         sys.exit(1)
-    run(sys.argv[1], sys.argv[2])
+    out_dir = sys.argv[3] if len(sys.argv) > 3 else None
+    run(sys.argv[1], sys.argv[2], out_dir)
