@@ -82,15 +82,38 @@ def extract_events_and_days(json_path: str) -> dict:
                 if name:
                     facts["events"].append(str(name))
 
+    EPISODE_THRESHOLD = 8   # minimum cumulative move to even be a candidate episode
+    TOP_N_EPISODES = 3      # only the most salient moments count as "must-cite" facts
+
+    candidate_episodes = []  # (magnitude, day, axis)
+
     for hist_key in ["staff_wellbeing_history", "patient_health_history",
                       "patient_experience_history", "cost_reduction_history"]:
         for series in find_key(data, hist_key):
-            if isinstance(series, list):
-                for i in range(1, len(series)):
-                    if abs(series[i] - series[i - 1]) >= 5:
-                        facts["sig_days"].append(i)
+            if not isinstance(series, list) or len(series) < 2:
+                continue
+            SKIP_STARTUP_DAYS = 2  # first days often reflect sim calibration, not real events
+            i = max(1, SKIP_STARTUP_DAYS)
+            while i < len(series):
+                direction = 1 if series[i] > series[i - 1] else -1 if series[i] < series[i - 1] else 0
+                if direction == 0:
+                    i += 1
+                    continue
+                start = i - 1
+                j = i
+                while j < len(series) - 1:
+                    next_dir = 1 if series[j + 1] > series[j] else -1 if series[j + 1] < series[j] else 0
+                    if next_dir != direction:
+                        break
+                    j += 1
+                cumulative = abs(series[j] - series[start])
+                if cumulative >= EPISODE_THRESHOLD:
+                    candidate_episodes.append((cumulative, j, hist_key))
+                i = j + 1
 
-    facts["sig_days"] = sorted(set(facts["sig_days"]))
+    # keep only the top-N most salient episodes overall (across all axes)
+    candidate_episodes.sort(key=lambda x: -x[0])
+    facts["sig_days"] = sorted({day for _, day, _ in candidate_episodes[:TOP_N_EPISODES]})
     return facts
 
 

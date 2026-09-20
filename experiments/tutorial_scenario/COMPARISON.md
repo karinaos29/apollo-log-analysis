@@ -6,18 +6,20 @@ This document presents a structured evaluation and comparison of the three candi
 
 ## 1. Executive Summary & Scorecard
 
-| # | Criterion | Evaluation Type | Target / Scale | Llama 3.2 (3B) | Phi-3.5-mini (3.8B) | Qwen 2.5 (3B) | Winner |
-|---|---|---|---|---|---|---|---|
-| 1 | **Groundedness** | Automatic (Script) | 0.0 – 1.0 | 0.18 *(0.00 exact)* | **0.27** *(0.18 exact)* | 0.18 *(0.09 exact)* | **Phi-3.5** |
-| 2 | **Coverage** | Automatic (Script) | 0.0 – 1.0 (4 axes) | 0.75 (3/4 axes) | **1.00** (4/4 axes) | 0.25 (1/4 axes) | **Phi-3.5** |
-| 3 | **Conciseness (Desc)** | Automatic (Script) | 0.0 – 1.0 (3–5 sents) | **1.00** (4 sents) | **1.00** (4 sents) | 0.80 (2 sents) | **Llama / Phi** |
-| 3 | **Conciseness (Eval)** | Automatic (Script) | 0.0 – 1.0 (3–5 sents) | **1.00** (5 sents) | **1.00** (5 sents) | **1.00** (4 sents) | **Tie** |
-| 4 | **Speed** | Automatic | seconds | *N/A (Not logged)* | *N/A (Not logged)* | *N/A (Not logged)* | *N/A* |
-| 5 | **Consistency** | Automatic | 0.0 – 1.0 (repeat runs)| *N/A (Single run)* | *N/A (Single run)* | *N/A (Single run)* | *N/A* |
-| 6 | **Factual Accuracy** | Semi-auto + Spot Check | 0.0 – 1.0 | 0.67 *(Severe Hallucinations)* | **1.00** *(Minor Inversion)* | 1.00 *(Generalized Misclaim)* | **Phi-3.5** |
-| 7 | **Tone (Evaluative)** | Semi-auto (Script) | 0.0 – 1.0 | 0.70 | 0.62 | **1.00** | **Qwen 2.5** (Lexical) / **Phi-3.5** (Grounded) |
-| 8 | **Two-Part Separation**| Manual Checklist | Count of issues (lower is better) | 1 issue | 1 issue | **0 issues** | **Qwen 2.5** |
-| 9 | **Fluency** | Manual Checklist | Count of issues (lower is better) | **0 issues** | 1–2 issues | 0–1 issues | **Llama 3.2** |
+| # | Criterion | Evaluation Type | Scale | Llama 3.2 (3B) | Phi-3.5-mini (3.8B) | Qwen 2.5 (3B) | Relative Winner | Production Viability (Absolute Threshold) |
+|---|---|---|---|---|---|---|---|---|
+| 1 | **Groundedness** | Automatic (Script) | 0.0 – 1.0 | 0.18 *(0.00 exact\**)* | **0.27** *(0.18 exact\**)* | 0.18 *(0.09 exact\**)* | **Phi-3.5** | ❌ **FAIL (All models)** — 0.27 is borderline unusable |
+| 2 | **Coverage** | Automatic (Script) | 0.0 – 1.0 (4 axes) | 0.75 (3/4 axes) | **1.00** (4/4 axes) | 0.25 (1/4 axes) | **Phi-3.5** | ⚠️ Only Phi-3.5 meets the 1.00 requirement |
+| 3 | **Conciseness (Desc)** | Automatic (Script) | 0.0 – 1.0 (3–5 sents) | **1.00** (4 sents) | **1.00** (4 sents) | 0.80 (2 sents) | **Llama / Phi** | ⚠️ Qwen too brief (2 sentences) |
+| 3 | **Conciseness (Eval)** | Automatic (Script) | 0.0 – 1.0 (3–5 sents) | **1.00** (5 sents) | **1.00** (5 sents) | **1.00** (4 sents) | **Tie** | ✅ All models meet target |
+| 4 | **Speed** | Automatic | seconds | *N/A (Console only)* | *N/A (Console only)* | *N/A (Console only)* | *N/A* | Benchmark needed on target hardware |
+| 5 | **Consistency** | Automatic | 0.0 – 1.0 (repeat runs)| *N/A (Single run)* | *N/A (Single run)* | *N/A (Single run)* | *N/A* | Requires $N \ge 3$ repeat runs per model |
+| 6 | **Factual Accuracy** | Semi-auto + Spot Check | 0.0 – 1.0 | 0.67 *(Severe Hallucinations)* | **1.00** *(Minor Inversion)* | 1.00 *(Gross Misrepresentation)* | **Phi-3.5** | ❌ Llama disqualified; Qwen misleading |
+| 7 | **Tone (Evaluative)** | Semi-auto (Script) | 0.0 – 1.0 | 0.70 | 0.62 | **1.00** | **Qwen 2.5** (Lexical) / **Phi-3.5** (Grounded) | ✅ All exhibit constructive tone |
+| 8 | **Two-Part Separation**| Manual Checklist | Count of issues (0 is best) | 1 issue | 1 issue | **0 issues** | **Qwen 2.5** | ⚠️ Phi leaks evaluation into descriptive |
+| 9 | **Fluency** | Manual Checklist | Count of issues (0 is best) | **0 issues** | 1–2 issues | 0–1 issues | **Llama 3.2** | ⚠️ Phi looped zeros in scratchpad |
+
+*\*Note: An audit of `score_outputs.py` revealed that single-digit day strings like `f"day 1"` match inside `"Day 18"` and `"Day 15"` due to lacking regex word boundaries. Exact boundary matches are shown in parentheses.*
 
 ---
 
@@ -40,75 +42,105 @@ This document presents a structured evaluation and comparison of the three candi
 
 ---
 
-## 3. Detailed Model Analysis
+## 3. Mid-Run Reality Check: "Winning" vs. Absolute Usability
+
+In evaluating these candidate models for deployment within the APOLLO2028 simulation platform, **identifying a relative winner among the three is not enough**. In several critical criteria, being the highest-scoring model still falls far short of an acceptable, production-grade baseline. 
+
+### 3.1 The Groundedness Crisis (0.27 is Borderline Unusable)
+Phi-3.5 achieved the highest Groundedness score among all candidates at **0.27** (which drops to **0.18** under strict word-boundary matching). While it technically "won" the category, **an absolute score of 0.27 is critically deficient**:
+- **73% to 82% of referenceable facts were omitted**: The model completely ignored the final financial balance ($1,612,332), total patients treated (302/377), days completed (21), staff turnover (0 resignations), and 9 out of 10 significant score inflection days.
+- **Player Experience Impact**: A healthcare professional or student completing a 21-day management simulation will find a summary that ignores over 70% of the run's factual trajectory generic and unconvincing. If the generated report fails to cite key outcome numbers, players will question whether the system actually evaluated their performance.
+- **Root Cause Analysis**:
+  1. *Prompt Structural Tension*: Task 2 demands a 3–5 sentence descriptive summary. Cramming 11 referenceable facts into 3–5 sentences is mathematically impractical without creating an unreadable string of numbers.
+  2. *Lack of Salience Prioritization*: The models do not know *which* facts are mandatory anchors (e.g. final financial surplus, patient treated count, simulation length) versus optional context. Consequently, Phi omitted outcome numbers entirely, Qwen omitted 3 axes and financial figures, and Llama fabricated them.
+
+### 3.2 The False Reassurance of Factual Accuracy
+`score_outputs.py` assigns high numerical factual accuracy scores to models that are practically untrustworthy:
+- **Qwen 2.5 scored 1.00** because the single number it cited (`Day 15`) matched the JSON. Yet qualitatively, it asserted: *"The run concluded with all issues resolved within the allowed timeframe, resulting in modest improvement across all four axes."* This is **factually false and dangerously misleading**: 3 out of 4 axes (Staff Wellbeing, Patient Health, Patient Experience) substantially declined. Telling a learner that all axes improved when the hospital's clinical and staff metrics degraded defeats the pedagogical purpose of the simulation.
+- **Llama 3.2 scored 0.67** purely through coincidental number overlaps (`30`, `18`, `80` existed in unrelated metadata). In reality, **100% of Llama's substantive claims were confabulated**: 30-day run (actual: 21), Day 18 crisis (actual: Day 15), 2 resignations (actual: 0), $250k finance (actual: $1.61M), and a fabricated Day 20 decision.
+
+### 3.3 Coverage is a Non-Negotiable Gate
+The APOLLO2028 game is built around the Quadruple Aim framework. A model that fails to mention all four axes fails the game's core educational construct.
+- Qwen 2.5 scored **0.25** by only naming *Patient Experience*.
+- Llama 3.2 scored **0.75** by omitting *Patient Health*.
+- Only Phi-3.5 (**1.00**) satisfied this non-negotiable pedagogical requirement.
+
+---
+
+## 4. Detailed Model Breakdown
 
 ### 1. Llama 3.2 (3B-instruct)
 - **Output File**: `experiments/tutorial_scenario/output_llama3.2.md`
 - **Strengths**:
-  - **Superb Fluency and Style**: Highest prose quality, natural sentence variety, and professional cadence.
-  - **Perfect Structural Length**: 4 sentences in the descriptive part, 5 sentences in the evaluative part (1.00 on both conciseness metrics).
-  - **Constructive Evaluative Tone**: Balances encouragement with constructive areas for improvement.
-- **Weaknesses & Critical Failures**:
-  - **Catastrophic Hallucinations**: Confabulated nearly every key numerical and historical fact:
-    - Hallucinated that the simulation lasted **30 days** (actual: 21 days).
-    - Hallucinated that the equipment crisis happened on **Day 18** (actual: Day 15).
-    - Hallucinated **two staff members resigning** (actual: 0 resignations).
-    - Hallucinated a final financial result of **$250,000** (actual: $1,612,332).
-    - Hallucinated **100 patients treated** in Task 1 analysis (actual: 377).
-    - Invented a fictitious **"missed opportunity for cost reduction on Day 20"**.
-  - **Groundedness**: Received a script score of 0.18 only because `Day 1` and `Day 2` falsely substring-matched `Day 18` and `Day 20`. Exact groundedness on real report facts is **0.00**.
-- **Verdict**: Unsuitable for deployment without severe guardrails / strict RAG, as it invents believable but completely incorrect hospital metrics.
+  - **Highest Prose Fluency**: Natural syntax, professional flow, and excellent readability.
+  - **Length Compliance**: 4 descriptive sentences, 5 evaluative sentences (1.00 conciseness).
+- **Critical Failures**:
+  - **Severe Hallucination**: Fabricated days, financial numbers, resignation counts, and player actions.
+  - **Groundedness Failure**: Exact groundedness on real report facts is **0.00**.
+- **Production Assessment**: **REJECT**. Inadmissible for automated assessment due to severe confabulation risk.
 
 ---
 
 ### 2. Phi-3.5-mini-instruct (3.8B)
 - **Output File**: `experiments/tutorial_scenario/output_phi3.5.md`
 - **Strengths**:
-  - **Comprehensive AIM Coverage (1.00)**: The only model to explicitly mention all four AIM dimensions (*Cost Reduction, Patient Health, Patient Experience, Staff Wellbeing*).
-  - **Strong Factual Grounding**:
-    - Correctly identified the exact event title: **"Critical Equipment Failure"**.
-    - Correctly placed the event on **Day 15**.
-    - Accurately observed the metric dynamics: steady increase in Cost Reduction while Patient Health, Experience, and Wellbeing faced declines leading up to Day 15.
-  - **Clean Structure**: 4 descriptive sentences, 5 evaluative sentences (1.00 conciseness).
+  - **100% Axis Coverage**: Comprehensively referenced all four AIM axes.
+  - **Authentic Fact Grounding**: Accurately captured event name (*"Critical Equipment Failure"*) and correct day (*Day 15*).
+  - **Accurate Metric Trajectory**: Correctly recognized that Cost Reduction increased while Patient Health, Experience, and Wellbeing declined toward Day 15.
 - **Weaknesses**:
-  - **Scratchpad Generation Glitch**: In the internal analysis (Task 1), suffered a token looping crash: `"emergency_mainten0000000000000000000000000000000"`. Fortunately, it recovered cleanly in Tasks 2 and 3.
-  - **Descriptive Leakage**: Descriptive closing ventures into subjective/interpretive analysis (*"suggesting an effective intervention"*, *"underscore the interconnectedness..."*).
-  - **Calendar Artifact**: Framed the run as a *"Tuesday to Friday period"*, which is an artificial mapping onto the 21-day timeline.
-- **Verdict**: **Best overall performer**. It genuinely understood and represented the multi-axis hospital dynamics and remained anchored to the log facts.
+  - **Low Absolute Groundedness (0.27 raw / 0.18 exact)**: Omitted all bottom-line outcome numbers (patients treated, final balance, days completed).
+  - **Token Generation Glitch**: Scratchpad analysis suffered a zero-looping crash (`emergency_mainten0000000000000000000000000000000`).
+  - **Descriptive Bleed**: Descriptive part leaked evaluative interpretations (*"suggesting an effective intervention"*).
+- **Production Assessment**: **CONDITIONAL CANDIDATE**. Best foundation among the three, but requires structural scaffolding before it is production-ready.
 
 ---
 
 ### 3. Qwen 2.5 (3B-instruct)
 - **Output File**: `experiments/tutorial_scenario/output_qwen2.5_3b.md`
 - **Strengths**:
-  - **Clean Two-Part Separation**: Kept descriptive factual and evaluative focused, with zero checklist issues.
-  - **Accurate Event Identification**: Correctly matched Day 15, equipment failure, and the chosen solution (*"Emergency Maintenance"*).
-  - **Positive Tone (1.00)**: Highly encouraging and supportive tone throughout the evaluative part.
+  - **Zero Separation Leakage**: Clean distinction between descriptive facts and evaluative comments.
+  - **Accurate Crisis Identification**: Correctly matched Day 15, equipment failure, and *"Emergency Maintenance"*.
 - **Weaknesses**:
-  - **Excessive Brevity**: The descriptive section is only 2 sentences (below the 3–5 sentence requirement, scoring 0.80).
-  - **Poor Explicit Axis Coverage (0.25)**: Explicitly named only *Patient Experience*. Grouped the others into a vague *"across all four axes"* statement.
-  - **Qualitative Factual Distortion**: Claimed *"modest improvement across all four axes"*, when in fact 3 out of 4 axes significantly deteriorated (only Cost Reduction improved).
-  - **Analysis Discrepancy**: Stated *"15 days completed"* in Task 1 analysis instead of 21 days.
-- **Verdict**: Solid baseline that avoids blatant number hallucinations, but overly terse and glosses over critical negative score trends.
+  - **Severe Under-Coverage (0.25)**: Explicitly discussed only 1 of 4 axes.
+  - **Excessive Brevity (0.80)**: Descriptive part was only 2 sentences.
+  - **Misleading Qualitative Claim**: Asserted improvements across all axes despite widespread declines.
+- **Production Assessment**: **REJECT IN CURRENT FORM**. Too timid, low coverage, and distorts overall game results.
 
 ---
 
-## 4. Methodological Findings & Script Audit
+## 5. Methodological Audit of Scoring Tools
 
-During this evaluation, an audit of `scripts/score_outputs.py` revealed an important nuance:
-- **Substring Collision in Groundedness**:
-  `score_outputs.py` uses `f"day {d}" in text.lower()`. Because single-digit days (e.g. `d = 1`, `d = 2`) are tested without word boundaries, `"Day 18"` registers as a hit for Day 1, and `"Day 20"` registers as a hit for Day 2.
-  - *Recommendation*: Update `score_outputs.py` to use regex word boundaries: `re.search(rf"\bday\s*{d}\b", text, re.IGNORECASE)`.
-- **Consistency Score Context**:
-  The script's `0.06` consistency score was calculated across three **different** models. Per `EVALUATION_CRITERIA_v2.md`, consistency measures the stability of the **same model** across $N \ge 3$ repeated runs of identical input.
+1. **Substring Bug in `score_outputs.py`**:
+   `score_outputs.py` matches days using `f"day {d}" in text.lower()`. Single-digit days (`day 1`, `day 2`) match inside `"Day 18"` and `"Day 20"`. Regex word boundaries (`rf"\bday\s*{d}\b"`) are required to prevent inflated groundedness scores.
+2. **Clarification on Groundedness Metric**:
+   The current Groundedness metric treats all 11 facts equally (e.g. Day 9 having a 5-point drop is weighted the same as final patient survival or simulation length). A weighted metric distinguishing **Essential Milestone Facts** from **Incidental Fluctuations** is needed.
 
 ---
 
-## 5. Final Recommendation
+## 6. Strategic Mid-Run Recommendations & Next Steps
 
-1. **Top Candidate: Phi-3.5-mini-instruct**
-   Phi-3.5 is the top choice for APOLLO2028 report generation. It is the only model that grasped the multi-dimensional nature of the simulation, faithfully captured all four axes, and accurately situated the Day 15 equipment failure.
-2. **Mitigations for Phi-3.5**:
-   - Add a temperature / repetition penalty constraint to prevent the scratchpad zero-looping (`emergency_mainten000...`).
-   - Reinforce the system prompt boundary: descriptive section must strictly state *what occurred*, deferring *why/effectiveness* to the evaluative part.
+To bridge the gap between a 0.27 "winner" and a viable production system, the following pipeline improvements are recommended:
 
+```mermaid
+flowchart LR
+    A["Raw JSON Log"] --> B["Python Metric Extractor\n(Deterministic)"]
+    B --> C["Structured Context Card\n• Essential Milestones\n• 4-Axis Delta\n• Bottom-line Numbers"]
+    C --> D["Targeted Prompt\n(Phi-3.5-mini)"]
+    D --> E["Descriptive Part\n(Grounded >= 0.80)"]
+    D --> F["Evaluative Part\n(Encouraging & Constructive)"]
+```
+
+1. **Hybrid Architecture (Deterministic Extraction + LLM Narration)**:
+   Do not force a 3B model to perform complex data extraction across thousands of lines of raw JSON. A lightweight Python script should pre-extract a structured "Summary Card" containing:
+   - Mandatory outcome numbers (days completed, patients treated, success rate, net funds, resignations).
+   - Significant events and their resolution days.
+   - Start vs. end values and deltas for all 4 AIM axes.
+2. **Explicit Prompt Anchoring**:
+   Revise `TASK2` prompt to explicitly require mandatory anchor slots:
+   > *"In 3-5 sentences, describe: (1) total days, patients treated, and final balance; (2) the Day 15 Critical Equipment Failure; (3) the net trajectory of the 4 AIM axes. Do not omit any axis."*
+3. **Establish Production Acceptance Thresholds**:
+   Before deploying any model to production, require:
+   - **Groundedness (Essential Facts)**: $\ge 0.75$
+   - **AIM Axis Coverage**: $= 1.00$ (Non-negotiable)
+   - **Factual Accuracy (Hallucination Tolerance)**: $0$ fabricated entities/days
+   - **Separation Issue Count**: $0$
