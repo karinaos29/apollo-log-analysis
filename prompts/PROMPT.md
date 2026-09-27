@@ -1,8 +1,7 @@
 # Prompt Design
 
-Per the professor's guidance: no external Python preprocessing of the JSON.
 The "find the key shifts and changes" step happens **inside the prompt**, as
-the model's first task, using the model's own reasoning over the raw JSON.
+the model's first task, using the model's own reasoning over the log data.
 The output then has two distinct parts, matching what the current PDF
 already does structurally:
 
@@ -77,7 +76,7 @@ weak or mixed — frame weaknesses as opportunities rather than failures.
 
 ---
 
-## Notes / things to test
+## Open questions
 
 - Whether the model reliably keeps Task 2 purely descriptive vs. sneaking in
   judgment (a common failure mode) — worth checking explicitly per model
