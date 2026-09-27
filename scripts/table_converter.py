@@ -18,10 +18,14 @@ from pathlib import Path
 
 DAILY_COLUMNS = [
     ("day", "day"),
-    ("staff_wellbeing", "staff_wellbeing"),
-    ("patient_health", "patient_health"),
-    ("patient_experience", "patient_experience"),
-    ("cost_reduction", "cost_reduction"),
+    # Labels are human-readable (not the raw snake_case JSON keys): the
+    # model tends to echo column headers verbatim into its prose, and
+    # snake_case echoes don't match the scorer's "patient health" /
+    # "staff wellbeing" keyword checks in coverage_score().
+    ("staff_wellbeing", "staff wellbeing"),
+    ("patient_health", "patient health"),
+    ("patient_experience", "patient experience"),
+    ("cost_reduction", "cost reduction"),
     ("finance_remaining", "finance"),
     ("patients_treated_successfully_total", "patients_ok"),
     ("patients_treated_unsuccessfully_total", "patients_fail"),

@@ -46,8 +46,8 @@ to Day {total_days}. Review the FULL table - early days ({early_range}), \
 middle days ({mid_range}), and late days ({late_range}) all matter equally. \
 Do not let the final rows dominate your analysis just because they come \
 last. Identify:
-- the overall trend of each of the four scores (staff_wellbeing, \
-patient_health, patient_experience, cost_reduction) across the run
+- the overall trend of each of the four scores (staff wellbeing, \
+patient health, patient experience, cost reduction) across the run
 - any sharp increases or decreases, and the day they occurred - scan the \
 whole table, including {early_range}
 - whether any sharp change coincides with an entry in the event log, and if \
