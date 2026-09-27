@@ -14,11 +14,11 @@ Every candidate model was evaluated through two distinct lenses per `EVALUATION_
 
 | Scenario | Strategy / Player | Log Path | Winner | Groundedness (Raw / Ex) | Coverage | Factual Truthfulness | Production Viability Status |
 |---|---|---|---|---|---|---|---|
-| **Tutorial** (21d) | Normal (Karina) | [`tutorial/normal_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/tutorial/normal_strategy/COMPARISON.md) | **Phi-3.5** | **0.27** / 0.18 | **1.00** | ✅ Accurate event & Day 15 | ❌ **FAIL** (0.27 Groundedness too low) |
-| **Post-Pandemic** (30d) | Normal (Mark) | [`post-pandemic/normal_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/post-pandemic/normal_strategy/COMPARISON.md) | **Phi-3.5** | 0.00 / 0.00 | **1.00** | ✅ Day 27 consolidation ($62.5k) | ❌ **FAIL** (0.00 Groundedness; prompt leak) |
-| **Post-Pandemic** (30d) | Cost-Minimization (Catherine) | [`post-pandemic/cost_minimization_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/post-pandemic/cost_minimization_strategy/COMPARISON.md) | **Phi-3.5** | **0.33** / 0.33 | 0.50 | ⚠️ Partial axis coverage | ❌ **FAIL** (0.33 Groundedness; Llama inverted) |
-| **Winter Flu** (60d) | Normal (Jane) | [`winter-flu/normal_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/winter-flu/normal_strategy/COMPARISON.md) | **Phi-3.5** | 0.00 / 0.00 | 0.75 | ✅ Exact score extraction (`65.24`) | ❌ **FAIL** (Lost Days 1–40; 0.00 Groundedness) |
-| **Winter Flu** (60d) | Cost-Minimization (Patrick) | [`winter-flu/cost_minimization_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/winter-flu/cost_minimization_strategy/COMPARISON.md) | **Phi-3.5** | 0.00 / 0.00 | **1.00** | ✅ Recognized Day 43 `do_nothing` | ❌ **FAIL** (Missed epidemic peak trade-offs) |
+| **Tutorial** (21d) | Normal (Karina) | [`tutorial/normal_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/tutorial/normal_strategy/COMPARISON.md) | **Phi-3.5** | **0.27** / 0.18 | **1.00** | ✅ Accurate event & Day 15 | ❌ **FAIL** (0.27 Groundedness too low) |
+| **Post-Pandemic** (30d) | Normal (Mark) | [`post-pandemic/normal_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/post-pandemic/normal_strategy/COMPARISON.md) | **Phi-3.5** | 0.00 / 0.00 | **1.00** | ✅ Day 27 consolidation ($62.5k) | ❌ **FAIL** (0.00 Groundedness; prompt leak) |
+| **Post-Pandemic** (30d) | Cost-Minimization (Catherine) | [`post-pandemic/cost_minimization_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/post-pandemic/cost_minimization_strategy/COMPARISON.md) | **Phi-3.5** | **0.33** / 0.33 | 0.50 | ⚠️ Partial axis coverage | ❌ **FAIL** (0.33 Groundedness; Llama inverted) |
+| **Winter Flu** (60d) | Normal (Jane) | [`winter-flu/normal_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/winter-flu/normal_strategy/COMPARISON.md) | **Phi-3.5** | 0.00 / 0.00 | 0.75 | ✅ Exact score extraction (`65.24`) | ❌ **FAIL** (Lost Days 1–40; 0.00 Groundedness) |
+| **Winter Flu** (60d) | Cost-Minimization (Patrick) | [`winter-flu/cost_minimization_strategy/`](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/winter-flu/cost_minimization_strategy/COMPARISON.md) | **Phi-3.5** | 0.00 / 0.00 | **1.00** | ✅ Recognized Day 43 `do_nothing` | ❌ **FAIL** (Missed epidemic peak trade-offs) |
 
 ---
 
@@ -51,15 +51,15 @@ While Llama 3.2 consistently wrote the most fluent prose and was fast (33s–56s
 
 Each individual scenario log has been evaluated in its dedicated experiment folder:
 1. **Tutorial Scenario (Normal Strategy - Karina)**:
-   - [experiments/tutorial/normal_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/tutorial/normal_strategy/COMPARISON.md)
+   - [experiments/v1/tutorial/normal_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/tutorial/normal_strategy/COMPARISON.md)
 2. **Post-Pandemic Financial Recovery (Normal Strategy - Mark)**:
-   - [experiments/post-pandemic/normal_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/post-pandemic/normal_strategy/COMPARISON.md)
+   - [experiments/v1/post-pandemic/normal_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/post-pandemic/normal_strategy/COMPARISON.md)
 3. **Post-Pandemic Financial Recovery (Cost-Minimization - Catherine)**:
-   - [experiments/post-pandemic/cost_minimization_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/post-pandemic/cost_minimization_strategy/COMPARISON.md)
+   - [experiments/v1/post-pandemic/cost_minimization_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/post-pandemic/cost_minimization_strategy/COMPARISON.md)
 4. **Winter Flu Crisis (Normal Strategy - Jane)**:
-   - [experiments/winter-flu/normal_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/winter-flu/normal_strategy/COMPARISON.md)
+   - [experiments/v1/winter-flu/normal_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/winter-flu/normal_strategy/COMPARISON.md)
 5. **Winter Flu Crisis (Cost-Minimization - Patrick)**:
-   - [experiments/winter-flu/cost_minimization_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/winter-flu/cost_minimization_strategy/COMPARISON.md)
+   - [experiments/v1/winter-flu/cost_minimization_strategy/COMPARISON.md](file:///Users/KarinaOsipova/Desktop/apollo28/apollo-log-analysis/experiments/v1/winter-flu/cost_minimization_strategy/COMPARISON.md)
 
 ---
 

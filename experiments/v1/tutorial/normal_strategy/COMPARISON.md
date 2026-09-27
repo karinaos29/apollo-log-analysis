@@ -70,7 +70,7 @@ The APOLLO2028 game is built around the Quadruple Aim framework. A model that fa
 ## 4. Detailed Model Breakdown
 
 ### 1. Llama 3.2 (3B-instruct)
-- **Output File**: `experiments/tutorial_scenario/output_llama3.2.md`
+- **Output File**: `experiments/v1/tutorial/normal_strategy/output_llama3.2.md`
 - **Strengths**:
   - **Highest Prose Fluency**: Natural syntax, professional flow, and excellent readability.
   - **Length Compliance**: 4 descriptive sentences, 5 evaluative sentences (1.00 conciseness).
@@ -82,7 +82,7 @@ The APOLLO2028 game is built around the Quadruple Aim framework. A model that fa
 ---
 
 ### 2. Phi-3.5-mini-instruct (3.8B)
-- **Output File**: `experiments/tutorial_scenario/output_phi3.5.md`
+- **Output File**: `experiments/v1/tutorial/normal_strategy/output_phi3.5.md`
 - **Strengths**:
   - **100% Axis Coverage**: Comprehensively referenced all four AIM axes.
   - **Authentic Fact Grounding**: Accurately captured event name (*"Critical Equipment Failure"*) and correct day (*Day 15*).
@@ -96,7 +96,7 @@ The APOLLO2028 game is built around the Quadruple Aim framework. A model that fa
 ---
 
 ### 3. Qwen 2.5 (3B-instruct)
-- **Output File**: `experiments/tutorial_scenario/output_qwen2.5_3b.md`
+- **Output File**: `experiments/v1/tutorial/normal_strategy/output_qwen2.5_3b.md`
 - **Strengths**:
   - **Zero Separation Leakage**: Clean distinction between descriptive facts and evaluative comments.
   - **Accurate Crisis Identification**: Correctly matched Day 15, equipment failure, and *"Emergency Maintenance"*.
