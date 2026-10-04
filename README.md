@@ -19,3 +19,28 @@ platform's existing structure:
 - **Evaluative part** — a higher-level, always encouragingly-toned
   assessment of what the results meant
 
+## Pipeline
+
+```
+data/<scenario>/*.json  ->  scripts/table_converter.py  ->  compact table (2.5-5.7 KB)
+                        ->  scripts/run_generation.py   ->  3-turn chat with a local Ollama model
+                                                            (analysis -> descriptive -> evaluative)
+                        ->  scripts/score_outputs.py    ->  automatic scores (EVALUATION_CRITERIA_v2.md)
+```
+
+- `scripts/table_converter.py` — flattens a raw log into a table (format conversion only)
+- `scripts/run_generation.py` — prompts and the single-log runner; `scripts/batch_generate.py` runs all logs/models
+- `scripts/score_outputs.py`, `scripts/batch_score.py` — scoring
+- `prompts/PROMPT.md` — current prompt text and open questions
+
+Run with the project venv, e.g.
+`./venv/bin/python3 scripts/run_generation.py <log.json> phi3.5 <output_dir>` (Ollama must be running).
+
+## Experiments
+
+| Version | Input to the model | Models | Summary |
+|---|---|---|---|
+| [v1](experiments/v1/COMPARISON.md) | full raw JSON (64-184 KB) | Llama 3.2, Phi-3.5, Qwen 2.5 | Phi-3.5 best; groundedness 0.00-0.33 on all runs |
+| [v2](experiments/v2/COMPARISON.md) | compact table + day-thirds prompt | Phi-3.5 only | factual accuracy up (0.77 -> 0.93), groundedness still far below target; 60-day logs still ignore mandatory facts |
+
+Model shortlist: `docs/MODEL_SHORTLIST.md`. Scoring definitions: `docs/EVALUATION_CRITERIA_v2.md`.
