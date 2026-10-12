@@ -14,7 +14,7 @@
 |---|---|---|---|
 | Groundedness | 0.33 | 0.50 | better |
 | Coverage (4 axes) | 0.50 | 1.00 | better |
-| Conciseness (desc / eval) | 0.80 / 0.60 | 0.00 / 0.60 | desc worse (over-long) |
+| Conciseness (desc / eval) | 0.80 / 0.60 | 1.00 / 0.60 | desc better |
 | Tone (eval) | 1.00 | 0.83 | lower |
 | Factual accuracy (approx.) | 0.50 | 1.00 | better |
 | Generation time | 82.9 s | 101.7 s | slower (timing noisy) |
@@ -26,4 +26,4 @@ Day 13 Talent War → Do Nothing (no retention bonuses); Day 21 Audit → Minor 
 - **Better:** both balances, the patient count and the resignation count are correct; the Day 21 and Day 27 decisions are both cited correctly (v1 only had one event mention); all four axes are covered; no inverted decisions.
 - **Missed:** the Day 13 refusal of retention bonuses, which is the defining choice of this cost-minimization run.
 - **Chronology error:** the descriptive part ties a Day 8 dip to the Day 21 audit, and credits a cost-reduction increase "by Day 20" to that later audit.
-- The descriptive part is too long (conciseness 0.00) and frames the run as "strong operational performance", which is evaluation inside the descriptive section. It also does not mention the large drops in patient health (−18.0) and staff wellbeing (−14.9) that this strategy produced.
+- The descriptive part frames the run as "strong operational performance", which is evaluation inside the descriptive section. It also does not mention the large drops in patient health (−18.0) and staff wellbeing (−14.9) that this strategy produced.

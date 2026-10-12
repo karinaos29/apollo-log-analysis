@@ -15,7 +15,7 @@
 |---|---|---|---|
 | Groundedness | 0.25 | 0.25 | = |
 | Coverage (4 axes) | 1.00 | 0.50 | worse |
-| Conciseness (desc / eval) | 1.00 / 1.00 | 0.80 / 0.80 | worse (6 sentences each) |
+| Conciseness (desc / eval) | 1.00 / 1.00 | 1.00 / 0.80 | eval worse (6 sentences) |
 | Tone (eval) | 0.62 | 0.77 | better |
 | Factual accuracy (approx.) | 1.00 | 1.00 | = |
 | Generation time | n/a (not recorded in v1) | 123.2 s | n/a |

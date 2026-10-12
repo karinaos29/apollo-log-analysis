@@ -132,7 +132,9 @@ def parse_output_md(md_path: str) -> dict:
 
 
 def sentence_count(text: str) -> int:
-    return len([s for s in re.split(r"[.!?]+", text) if s.strip()])
+    # split only where . ! ? is followed by whitespace, so decimals ("77.5") and
+    # dollar amounts are not counted as sentence breaks
+    return len([s for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s.strip()])
 
 
 def groundedness_score(json_path: str, full_text: str) -> float:

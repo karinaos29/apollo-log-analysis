@@ -114,17 +114,45 @@ mixed.
 
 ---
 
+## Pipeline v3 (current): context card
+
+`scripts/context_card.py` computes a fact card from the log (balances, patients,
+per-score change with lowest/highest day, notable swings, every player decision
+with its event title, chosen option, cost and the score change over the next week,
+strategic actions used/never used). The model no longer analyses the log: the
+chain is two turns, and each output is validated against the card (one rewrite
+if it fails). The prompts live in `scripts/run_card_generation.py`; their content:
+
+- **System prompt:** write the end-of-session report from a FACT CARD; use only
+  card facts, copy figures exactly, keep each decision on its own day, say that
+  score changes after a decision happened *afterwards* (never that it caused them),
+  plain prose.
+- **Turn 1 (descriptive):** 3-5 neutral sentences containing the exact starting and
+  ending balance, patients treated, all four scores with direction, and at least
+  two decisions by exact event title and day; no praise/criticism words; description
+  only. A one-shot style example from a different, made-up session is included.
+- **Turn 2 (evaluative):** 3-5 encouraging sentences referring to at least one
+  decision by event title and day, plus one score that fell or one unused strategic
+  action; no new facts; weaknesses framed as opportunities.
+- **Rewrite request (only when validation fails):** lists the specific problems and
+  asks for the whole part to be rewritten.
+
+Decoding: temperature 0.3, top_p 0.9, seed 42, num_ctx 4096, num_predict 600.
+Results and known defects: `experiments/v3/COMPARISON.md`.
+
+---
+
 ## Open questions
 
 - Whether the model reliably keeps Task 2 purely descriptive vs. sneaking in
   judgment (a common failure mode) — in v2 it still leaks evaluation
 - Whether the model carries mandatory facts (financial balances, all four
-  axes) into the report on 60-day logs — in v2 it did not; see
-  `experiments/v2/COMPARISON.md`
+  axes) into the report on 60-day logs — in v2 it did not; in v3 it does, but it
+  can still attach numbers to the wrong score (see `experiments/v3/COMPARISON.md`)
 - Whether it's better to run Tasks 1–3 as one multi-turn chat (context
   carries over) or as separate calls where you manually paste Task 1's
   output into Task 3's prompt — multi-turn is simpler to start with
-- Whether a Python-computed context card (final results, per-axis deltas,
-  decision list) should replace Task 1, which would also shorten the chain
+- Whether the numbers should be filled in by code (placeholders or fixed
+  sentences) instead of written by the model
 - French output: once the English version works, test asking for both
   languages in one pass vs. a separate translation call

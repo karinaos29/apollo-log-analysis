@@ -21,14 +21,16 @@ Two bugs found and fixed while producing v2: (a) undelimited large numbers (`335
 
 | Scenario | Groundedness v1 → v2 | Coverage v1 → v2 | Factual acc. v1 → v2 | Conciseness desc v1 → v2 | Tone v1 → v2 |
 |---|---|---|---|---|---|
-| [Tutorial](tutorial/normal_strategy/COMPARISON.md) | 0.25 → 0.25 | 1.00 → **0.50** | 1.00 → 1.00 | 1.00 → 0.80 | 0.62 → 0.77 |
-| [Post-pandemic normal](post-pandemic/normal_strategy/COMPARISON.md) | 0.00 → **0.17** | 1.00 → 1.00 | 0.80 → **1.00** | 0.00 → **0.80** | 1.00 → 0.82 |
-| [Post-pandemic cost-min](post-pandemic/cost_minimization_strategy/COMPARISON.md) | 0.33 → **0.50** | 0.50 → **1.00** | 0.50 → **1.00** | 0.80 → **0.00** | 1.00 → 0.83 |
-| [Winter flu normal](winter-flu/normal_strategy/COMPARISON.md) | 0.00 → 0.00 | 0.75 → **1.00** | 0.90 → **0.75** | 0.60 → **1.00** | 1.00 → 0.78 |
+| [Tutorial](tutorial/normal_strategy/COMPARISON.md) | 0.25 → 0.25 | 1.00 → **0.50** | 1.00 → 1.00 | 1.00 → 1.00 | 0.62 → 0.77 |
+| [Post-pandemic normal](post-pandemic/normal_strategy/COMPARISON.md) | 0.00 → **0.17** | 1.00 → 1.00 | 0.80 → **1.00** | 0.00 → **1.00** | 1.00 → 0.82 |
+| [Post-pandemic cost-min](post-pandemic/cost_minimization_strategy/COMPARISON.md) | 0.33 → **0.50** | 0.50 → **1.00** | 0.50 → **1.00** | 0.80 → **1.00** | 1.00 → 0.83 |
+| [Winter flu normal](winter-flu/normal_strategy/COMPARISON.md) | 0.00 → 0.00 | 0.75 → **1.00** | 0.90 → **0.75** | 0.80 → **1.00** | 1.00 → 0.78 |
 | [Winter flu cost-min](winter-flu/cost_minimization_strategy/COMPARISON.md) | 0.00 → 0.00 | 1.00 → 1.00 | 0.67 → **0.90** | 1.00 → 1.00 | 0.86 → 0.89 |
-| **Mean** | **0.12 → 0.18** | **0.85 → 0.90** | **0.77 → 0.93** | **0.68 → 0.72** | **0.90 → 0.82** |
+| **Mean** | **0.12 → 0.18** | **0.85 → 0.90** | **0.77 → 0.93** | **0.72 → 1.00** | **0.90 → 0.82** |
 
-Evaluative-part conciseness fell on average (0.84 → 0.64); it is 0.60 (6–7 sentences) in four of five v2 runs.
+Evaluative-part conciseness fell on average (0.88 → 0.64); it is 0.60 (6–7 sentences) in four of five v2 runs.
+
+*Correction (v3 round): the conciseness figures in the first version of this document were computed with a sentence splitter that counted decimals ("77.5") as sentence breaks. After fixing `score_outputs.py` they are as shown here; the other criteria were not affected.*
 Generation time (v1 → v2, s): 88.6 → 151.3, 82.9 → 101.7, 77.8 → 70.2, 78.5 → 89.1 (tutorial: not recorded in v1). These timings are noisy (other jobs were running on the same 8 GB machine) and should not be read as a speed result.
 
 ## 3. Conclusions
