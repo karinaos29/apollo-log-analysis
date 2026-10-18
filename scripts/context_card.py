@@ -30,7 +30,8 @@ FOLLOW_UP_DAYS = 7
 NON_STRATEGIC_ACTION_PREFIXES = ("unlock_",)
 OPINION_WORDS = ("excellent", "impressive", "poor", "disappointing", "great", "strong", "effective", "effectively",
                  "commendable", "robust", "remarkable", "outstanding", "praiseworthy", "success of")
-CAUSAL_PHRASES = ("led to", "resulted in", "caused", "because of", "due to", "thanks to", "triggered", "as a result")
+CAUSAL_PHRASES = ("led to", "resulted in", "caused", "because of", "due to", "thanks to", "triggered", "as a result",
+                   "contributed to", "contributing to", "played a role", "played a significant role", "paid off", "impacted")
 
 
 def _money(v) -> str:

@@ -21,9 +21,17 @@ platform's existing structure:
 
 ## Pipeline
 
-Two pipelines are kept side by side.
+Three pipelines are kept side by side.
 
-**v3 (current): context card.** Python computes the facts; the model only writes the two report parts.
+**v4 (current): deterministic facts + constrained model text.** Python writes the descriptive part; the model writes only the
+evaluative part, which is accepted only if it passes strict checks (no digits, exact quoted titles, no asserted causes), otherwise a template is used.
+```
+data/<scenario>/*.json -> scripts/context_card.py          (facts: balances, patients, scores, swings, decisions)
+                       -> scripts/report_draft.py          (Python descriptive text + acceptance checks + fallbacks)
+                       -> scripts/run_hybrid_generation.py (1 model call for the evaluative part, one rewrite, then template)
+```
+
+**v3: context card.** Python computes the facts; the model only writes the two report parts.
 ```
 data/<scenario>/*.json -> scripts/context_card.py        -> fact card (~950 tokens: balances, patients,
                                                             score changes, notable swings, player decisions)
@@ -34,14 +42,15 @@ data/<scenario>/*.json -> scripts/context_card.py        -> fact card (~950 toke
 
 **v2: table input.** `scripts/table_converter.py` -> `scripts/run_generation.py` (3 LLM calls: analysis -> descriptive -> evaluative).
 
-- `scripts/context_card.py` — builds the card and validates a generated report against it
+- `scripts/report_draft.py`, `scripts/run_hybrid_generation.py` — v4 draft builder, checks and runner (`--rewrite-descriptive` lets a model polish the description)
+- `scripts/context_card.py` — computes the facts, builds the v3 card and validates a v3 report against it
 - `scripts/run_card_generation.py` — v3 runner (prompts, decoding settings, validation, retry)
 - `scripts/table_converter.py`, `scripts/run_generation.py`, `scripts/batch_generate.py` — v2 pipeline
 - `scripts/score_outputs.py`, `scripts/batch_score.py` — scoring
 - `prompts/PROMPT.md` — prompt text and open questions
 
 Run with the project venv (Ollama must be running), e.g.
-`./venv/bin/python3 scripts/run_card_generation.py <log.json> phi3.5 <output_dir>`
+`./venv/bin/python3 scripts/run_hybrid_generation.py <log.json> phi3.5 <output_dir>`
 
 ## Experiments
 
@@ -50,5 +59,6 @@ Run with the project venv (Ollama must be running), e.g.
 | [v1](experiments/v1/COMPARISON.md) | full raw JSON (64-184 KB) | Llama 3.2, Phi-3.5, Qwen 2.5 | Phi-3.5 best; groundedness 0.00-0.33 on all runs |
 | [v2](experiments/v2/COMPARISON.md) | compact table + day-thirds prompt | Phi-3.5 only | factual accuracy up (0.77 -> 0.93); 60-day logs still ignore mandatory facts |
 | [v3](experiments/v3/COMPARISON.md) | Python-computed context card, 2-step chain, validation + retry | Phi-3.5 only | groundedness 0.18 -> 0.39, all figures correct, 4-score coverage 1.00; some invented/scrambled details remain |
+| [v4](experiments/v4/COMPARISON.md) | Python-written description + model-written evaluation checked by strict rules | Phi-3.5 only | groundedness 0.72, factual accuracy 0.99, 1 model call (~35 s); description is deterministic, evaluation accepted in 4 of 5 runs |
 
 Model shortlist: `docs/MODEL_SHORTLIST.md`. Scoring definitions: `docs/EVALUATION_CRITERIA_v2.md`.

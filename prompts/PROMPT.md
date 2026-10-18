@@ -114,7 +114,28 @@ mixed.
 
 ---
 
-## Pipeline v3 (current): context card
+## Pipeline v4 (current): deterministic facts + constrained model text
+
+Placeholder prompting and model rewriting of the factual text both failed with Phi-3.5
+(see `experiments/v4/COMPARISON.md`), so the roles are split:
+
+- **Descriptive part:** written by Python (`scripts/report_draft.py`) from the computed
+  facts, so every number, day and title is exact. The prompt `TASK_REWRITE` in
+  `scripts/run_hybrid_generation.py` (rewrite the draft as smooth prose, keep every number and
+  quoted title character for character, add nothing) is only used with `--rewrite-descriptive`.
+- **Evaluative part (model):** a fresh single-turn prompt with a digit-free fact list (scores that
+  rose/fell, resignations, decisions as "event title -> choice", unused actions). Rules given to
+  the model: write no digits; cite at least one decision by its exact event title in double quotes;
+  mention a score that fell or an unused action as an opportunity; suggest effects of decisions only
+  with hedged wording ("may have", "could", "might"); one paragraph; do not mention the game name;
+  end with a forward-looking, encouraging sentence.
+- **Acceptance:** the evaluation is checked (no digits, quoted names exact, a decision cited,
+  hedged causality, 3-5 sentences; longer text is trimmed keeping the closing sentence). One rewrite
+  request lists the problems; if it still fails, a deterministic encouraging template is used.
+
+---
+
+## Pipeline v3 (previous): context card
 
 `scripts/context_card.py` computes a fact card from the log (balances, patients,
 per-score change with lowest/highest day, notable swings, every player decision
