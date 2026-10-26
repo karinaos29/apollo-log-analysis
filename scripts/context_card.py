@@ -25,7 +25,7 @@ AXES = [
 
 EPISODE_THRESHOLD = 8   # cumulative one-direction move that counts as a notable swing
 TOP_EPISODES = 3
-SKIP_STARTUP_DAYS = 2   # first days reflect simulation calibration, not player actions
+SKIP_STARTUP_DAYS = 3   # Days 0-2 reflect initial simulation calibration/admissions, not player actions
 FOLLOW_UP_DAYS = 7
 NON_STRATEGIC_ACTION_PREFIXES = ("unlock_",)
 OPINION_WORDS = ("excellent", "impressive", "poor", "disappointing", "great", "strong", "effective", "effectively",
@@ -53,7 +53,7 @@ def _swing_episodes(series: list) -> list:
     so the days on the card are the days a reader would call notable.
     """
     out = []
-    i = max(1, SKIP_STARTUP_DAYS)
+    i = max(1, SKIP_STARTUP_DAYS + 1)
     while i < len(series):
         direction = 1 if series[i] > series[i - 1] else -1 if series[i] < series[i - 1] else 0
         if direction == 0:
@@ -129,9 +129,14 @@ def compute_facts(json_path: str) -> dict:
         if day is not None and day < len(daily):
             for key, label in AXES:
                 follow[label] = axes[key]["series"][end_idx] - axes[key]["series"][day]
+        max_follow = max((abs(v) for v in follow.values()), default=0)
+        is_active = 1 if chosen != "Take no action" else 0
+        has_cost = 1 if cost > 0 else 0
+        impact_score = max_follow + (has_cost * 10.0) + (is_active * 5.0)
         decisions.append({
             "day": day, "title": title, "chosen": chosen, "cost": cost,
             "not_chosen": others, "follow_end_day": end_idx, "follow": follow,
+            "impact_score": impact_score,
         })
     decisions.sort(key=lambda d: d["day"])
 

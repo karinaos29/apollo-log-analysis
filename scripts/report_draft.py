@@ -15,7 +15,9 @@ by construction. The model's job is limited to jobs a 3.8B model does reliably:
 A first attempt at v4 asked the model to write around {PLACEHOLDERS}; Phi-3.5
 could not hold that format (see experiments/v4/COMPARISON.md), hence this design.
 """
+from difflib import SequenceMatcher
 import re
+import zlib
 
 from context_card import (AXES, CAUSAL_PHRASES, _money, _sentences, _signed_money, validate_part)
 
@@ -52,7 +54,10 @@ def build_phrases(f: dict) -> dict:
         word = "rose" if e["to"] > e["from"] else "fell"
         s[f"SWING{i}"] = (f"{e['axis']} {word} from {e['from']:.1f} to {e['to']:.1f} "
                           f"between Day {e['start_day']} and Day {e['end_day']}")
-    for i, d in enumerate(f["decisions"][:MAX_DECISIONS], 1):
+    # Prioritize pivotal decisions by impact score, preserved in chronological order
+    ranked_decs = sorted(f["decisions"], key=lambda d: -d.get("impact_score", 0))
+    top_decs = sorted(ranked_decs[:MAX_DECISIONS], key=lambda d: d["day"])
+    for i, d in enumerate(top_decs, 1):
         if d["chosen"] == "Take no action":
             choice = "the player took no action"
         else:
@@ -92,18 +97,100 @@ def _join_and(items: list) -> str:
 
 # ------------------------------------------------------------------- drafts
 
-def draft_descriptive(p: dict, f: dict) -> str:
-    """Neutral, factual description (4-5 sentences) built only from computed phrases."""
-    scores = _join_and(["{SCORE_%s}" % k.upper() for k, _ in AXES])
-    parts = ["{MONEY}.", "In total, {PATIENTS}, and {RESIGNATIONS}.", f"Over the run, {scores}."]
-    swings = ["{%s}" % k for k in p if k.startswith("SWING")]
+def _style_index(f: dict, n: int) -> int:
+    """Pick a phrasing variant from the session itself, so the same log always gives the same text.
+
+    (Python's built-in hash() of a string changes between runs, so it is not used here.)
+    """
+    key = f"{f.get('scenario', '')}|{f.get('start_balance', 0):.0f}|{f.get('end_balance', 0):.0f}|{f.get('last_day', 0)}"
+    return zlib.crc32(key.encode("utf-8")) % n
+
+
+def draft_descriptive(p: dict, f: dict, style_idx: int = None) -> str:
+    """Neutral, factual description (4-5 sentences), phrased in one of three variants.
+
+    Wording rule: report what happened, never how good it was (no "positive",
+    "pivotal", "achieving", "held to"), and no time words the facts do not support.
+    """
+    if style_idx is None:
+        style_idx = _style_index(f, 3)
+    pick = lambda opts: opts[style_idx % len(opts)]
+
+    days, start, end = f["last_day"], f["start_balance"], f["end_balance"]
+    money = f"{_money(start)} to {_money(end)} ({_signed_money(end - start)})"
+    parts = [pick([
+        f"Over the {days}-day session, the hospital's balance went from {money}.",
+        f"The hospital's balance moved from {money} during the {days}-day simulation.",
+        f"Across the {days}-day run, the hospital's funds changed from {money}.",
+    ])]
+
+    r = f["resignations"]
+    res = ("no staff members resigned" if r == 0 else
+           "1 staff member resigned" if r == 1 else f"{r} staff members resigned")
+    pct = f"{f['success_pct']}%" if f.get("success_pct") is not None else "an unknown share"
+    parts.append(pick([
+        f"In total, {f['treated']:,} patients were treated, {f['ok']:,} of them successfully ({pct}), and {res}.",
+        f"Of the {f['treated']:,} patients treated, {f['ok']:,} were treated successfully ({pct}), and {res}.",
+        f"The hospital treated {f['treated']:,} patients with a success rate of {pct} ({f['ok']:,} successful), and {res}.",
+    ]))
+
+    rose, fell, flat = [], [], []
+    for k, label in AXES:
+        a = f["axes"][k]
+        d = a["end"] - a["start"]
+        if abs(d) < 0.05:
+            flat.append(f"{label} stayed at {a['start']:.1f}")
+        elif d > 0:
+            rose.append(f"{label} rose from {a['start']:.1f} to {a['end']:.1f}")
+        else:
+            fell.append(f"{label} fell from {a['start']:.1f} to {a['end']:.1f}")
+    if rose and fell:
+        s3 = pick([
+            f"By the end of the run, {_join_and(rose)}, while {_join_and(fell)}.",
+            f"Across the four scores, {_join_and(rose)}, whereas {_join_and(fell)}.",
+            f"Of the four scores, {_join_and(rose)}, and {_join_and(fell)}.",
+        ])
+    elif rose:
+        s3 = f"All scores that changed went up: {_join_and(rose)}."
+    elif fell:
+        s3 = f"All scores that changed went down: {_join_and(fell)}."
+    else:
+        s3 = ""
+    if flat:
+        s3 = (s3 + " " if s3 else "") + f"Unchanged: {_join_and(flat)}."
+    parts.append(s3)
+
+    swings = []
+    for e in f["episodes"][:2]:
+        noun = "rise" if e["to"] > e["from"] else "fall"
+        swings.append(f"a {noun} in {e['axis']} from {e['from']:.1f} to {e['to']:.1f} "
+                      f"between Day {e['start_day']} and Day {e['end_day']}")
     if swings:
-        parts.append("Notable score movements were that " + _join_and(swings[:2]) + ".")
-    decs = ["{%s}" % k for k in p if re.fullmatch(r"DEC\d+", k)]
+        parts.append(pick([
+            f"The largest score swings were {_join_and(swings)}.",
+            f"Notable score swings included {_join_and(swings)}.",
+            f"Among the largest score movements were {_join_and(swings)}.",
+        ]))
+
+    # up to three decisions, chosen by impact_score (cost, action taken, size of the following week's
+    # score change), listed in chronological order
+    ranked = sorted(f["decisions"], key=lambda d: -d.get("impact_score", 0))
+    top = sorted(ranked[:3], key=lambda d: d["day"])
+    decs = []
+    for d in top:
+        if d["chosen"] == "Take no action":
+            choice = "the player took no action"
+        else:
+            cost = f" (cost {_money(d['cost'])})" if d["cost"] else ""
+            choice = f'the player chose "{d["chosen"]}"{cost}'
+        decs.append(f'on Day {d["day"]}, at the event "{d["title"]}", {choice}')
     if decs:
-        pick = [decs[0]] if len(decs) == 1 else [decs[0], decs[-1]] if len(decs) < 4 else [decs[0], decs[len(decs) // 2], decs[-1]]
-        parts.append("Key decisions were: " + "; ".join(pick) + ".")
-    return fill(" ".join(parts), p)
+        parts.append(pick([
+            "Key decisions were: " + "; ".join(decs) + ".",
+            "The player's decisions included: " + "; ".join(decs) + ".",
+            "Decisions at key events included: " + "; ".join(decs) + ".",
+        ]))
+    return " ".join(x for x in parts if x)
 
 
 def draft_evaluative(p: dict, f: dict) -> str:
@@ -166,25 +253,85 @@ def validate_rewrite(draft: str, text: str, facts: dict) -> list:
     return problems
 
 
+def _clean_quote(q: str) -> str:
+    return re.sub(r"^[\s\"'.,:;!?-]+|[\s\"'.,:;!?-]+$", "", q)
+
+
+def _normalize(s: str) -> str:
+    return re.sub(r"[^\w\s]", "", s.lower()).strip()
+
+
 def validate_evaluative(text: str, facts: dict, phrases: dict) -> list:
     problems = []
     low = text.lower()
     digits = re.findall(r"\d+", re.sub(r"APOLLO\s?2028", "APOLLO", text, flags=re.IGNORECASE))
     if digits:
         problems.append("write no digits at all (found: " + ", ".join(digits[:4]) + "); refer to scores by name and direction")
-    titles = {d["title"] for d in facts["decisions"]}
-    options = {d["chosen"] for d in facts["decisions"]} | {o for d in facts["decisions"] for o in d["not_chosen"]}
-    q = _quotes(text)
-    bad = [x for x in q if x not in titles and x not in options]
+
+    decision_targets = set()
+    all_valid_targets = set()
+
+    for d in facts["decisions"]:
+        decision_targets.add(d["title"])
+        all_valid_targets.add(d["title"])
+        # Add subtitles or split parts (e.g. "Talent War: Competitors Offering Sign-On Bonuses" -> "Competitors Offering Sign-On Bonuses")
+        # a title's sub-parts ("Talent War: Competitors Offering Sign-On Bonuses" -> "Competitors Offering
+        # Sign-On Bonuses") count, but only at real separators and only if they are 2+ words
+        for part in re.split(r":|—| - ", d["title"]):
+            p_strip = part.strip()
+            if len(p_strip.split()) >= 2:
+                decision_targets.add(p_strip)
+                all_valid_targets.add(p_strip)
+        decision_targets.add(d["chosen"])
+        all_valid_targets.add(d["chosen"])
+        for o in d["not_chosen"]:
+            all_valid_targets.add(o)
+
+    for a in facts.get("actions_used", []) + facts.get("actions_unused", []):
+        all_valid_targets.add(a)
+    for k in ("UNUSED_1", "UNUSED_2"):
+        if k in phrases:
+            all_valid_targets.add(phrases[k])
+
+    raw_quotes = _quotes(text)
+    cleaned_quotes = {_clean_quote(q) for q in raw_quotes}
+    cleaned_quotes = {q for q in cleaned_quotes if q}
+
+    def matches_target(q_str: str, target_pool: set) -> bool:
+        nq = _normalize(q_str)
+        if not nq:
+            return False
+        for target in target_pool:
+            nt = _normalize(target)
+            if nq == nt:
+                return True
+            # partial or near matches only for specific quotes: a single generic word such as
+            # "Strategic" must not count as naming a decision
+            if len(nq) < 12 or len(nq.split()) < 2:
+                continue
+            if nq in nt or nt in nq:
+                return True
+            if SequenceMatcher(None, nq, nt).ratio() >= 0.82:
+                return True
+        return False
+
+    bad = []
+    for q in cleaned_quotes:
+        if not matches_target(q, all_valid_targets):
+            bad.append(q)
     if bad:
-        problems.append("these quoted names are not exact event titles or options: " + "; ".join(bad[:3]))
-    chosen = {d["chosen"] for d in facts["decisions"]}
-    if titles and not any(t in q for t in titles | chosen):
-        problems.append("cite at least one decision by copying its exact event title (or the option the player chose) in double quotes")
+        problems.append("these quoted names are not recognized event titles or options: " + "; ".join(bad[:3]))
+
+    if facts["decisions"]:
+        has_decision = any(matches_target(q, decision_targets) for q in cleaned_quotes)
+        if not has_decision:
+            problems.append("cite at least one decision by copying its event title (or chosen option) in double quotes")
+
     unused = [phrases[k].lower() for k in ("UNUSED_1", "UNUSED_2") if k in phrases]
     weak = list(strengths_and_weak_spots(facts)[1])
     if not (any(w in low for w in weak) or any(u in low for u in unused)):
         problems.append("mention a score that fell or an action that was never used")
+
     # Interpretation is allowed, but a cause may only be suggested, never stated as fact.
     asserted = []
     for sent in _sentences(text):
@@ -195,6 +342,7 @@ def validate_evaluative(text: str, facts: dict, phrases: dict) -> list:
     if asserted:
         problems.append("a decision's effect may only be suggested (use 'may have', 'could', 'might'), not stated as fact: "
                         + ", ".join(sorted(set(asserted))))
+
     n = len(_sentences(text))
     if not 3 <= n <= 5:
         problems.append(f"write 3-5 sentences, not {n}")

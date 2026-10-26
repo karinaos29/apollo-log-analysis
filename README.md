@@ -54,11 +54,13 @@ Run with the project venv (Ollama must be running), e.g.
 
 ## Experiments
 
+Scores below are from the current scorer applied to all versions (see `experiments/v4/COMPARISON.md`).
+
 | Version | Input to the model | Models | Summary |
 |---|---|---|---|
 | [v1](experiments/v1/COMPARISON.md) | full raw JSON (64-184 KB) | Llama 3.2, Phi-3.5, Qwen 2.5 | Phi-3.5 best; groundedness 0.00-0.33 on all runs |
 | [v2](experiments/v2/COMPARISON.md) | compact table + day-thirds prompt | Phi-3.5 only | factual accuracy up (0.77 -> 0.93); 60-day logs still ignore mandatory facts |
-| [v3](experiments/v3/COMPARISON.md) | Python-computed context card, 2-step chain, validation + retry | Phi-3.5 only | groundedness 0.18 -> 0.39, all figures correct, 4-score coverage 1.00; some invented/scrambled details remain |
-| [v4](experiments/v4/COMPARISON.md) | Python-written description + model-written evaluation checked by strict rules | Phi-3.5 only | groundedness 0.72, factual accuracy 0.99, 1 model call (~35 s); description is deterministic, evaluation accepted in 4 of 5 runs |
+| [v3](experiments/v3/COMPARISON.md) | Python-computed context card, 2-step chain, validation + retry | Phi-3.5 only | groundedness 0.15 -> 0.34, all figures correct, 4-score coverage 1.00; some invented/scrambled details remain |
+| [v4](experiments/v4/COMPARISON.md) | Python-written description + model-written evaluation checked by strict rules | Phi-3.5 only | groundedness 0.71, factual accuracy 0.99, 1 model call (~27 s); description is deterministic, model evaluation accepted in 5 of 5 runs |
 
 Model shortlist: `docs/MODEL_SHORTLIST.md`. Scoring definitions: `docs/EVALUATION_CRITERIA_v2.md`.

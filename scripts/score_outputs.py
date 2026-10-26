@@ -92,8 +92,8 @@ def extract_events_and_days(json_path: str) -> dict:
         for series in find_key(data, hist_key):
             if not isinstance(series, list) or len(series) < 2:
                 continue
-            SKIP_STARTUP_DAYS = 2  # first days often reflect sim calibration, not real events
-            i = max(1, SKIP_STARTUP_DAYS)
+            SKIP_STARTUP_DAYS = 3  # Days 0-2 reflect initial simulation calibration/admissions
+            i = max(1, SKIP_STARTUP_DAYS + 1)
             while i < len(series):
                 direction = 1 if series[i] > series[i - 1] else -1 if series[i] < series[i - 1] else 0
                 if direction == 0:
