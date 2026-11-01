@@ -5,7 +5,7 @@
 **Master summary:** [experiments/v2/COMPARISON.md](../../COMPARISON.md)
 
 ## What changed vs v1
-- Input: raw JSON (64 KB) replaced by a compact table (2.5 KB) built by [table_converter.py](../../../../scripts/table_converter.py).
+- Input: raw JSON (64 KB) replaced by a compact table (2.5 KB) built by [table_converter.py](../../../../scripts/legacy/table_converter.py).
 - Prompt: day-thirds review instruction in TASK 1; TASK 2 requires start/end financial balance plus a moment from each half of the run.
 - Scores below are recomputed with the current `score_outputs.py` for both versions (v1 figures can differ slightly from the v1 write-up).
 

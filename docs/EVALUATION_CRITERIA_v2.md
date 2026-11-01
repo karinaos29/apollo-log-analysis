@@ -42,7 +42,7 @@ e.g. 6 sentences = 0.8, 8+ sentences = 0.0).
 **Definition:** wall-clock time for the full 3-step generation.
 **Scale:** seconds (raw number, not normalized — compare directly across
 models).
-**Method:** already timed and printed by `run_generation.py`.
+**Method:** already timed and printed by the runners (current: `scripts/run_hybrid_generation.py`; earlier: `scripts/legacy/`).
 
 ### 5. Consistency
 **Definition:** how stable the model's output is on repeated runs of the

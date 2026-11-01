@@ -17,14 +17,11 @@ from pathlib import Path
 
 import requests
 
+# legacy script: the shared modules live one directory up
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from context_card import build_context_card, clean_generation, validate_part
-
-OLLAMA_URL = "http://localhost:11434/api/chat"
-
-# Fixed decoding settings: low temperature + seed make repeat runs comparable
-# and reduce the token glitches seen in v2. num_ctx is set explicitly so the
-# prompt is never silently truncated; the runner warns when it gets close.
-OPTIONS = {"temperature": 0.3, "top_p": 0.9, "seed": 42, "num_ctx": 4096, "num_predict": 600}
+from llm_client import OLLAMA_URL, OPTIONS, RETRY_TEMPLATE, chat  # noqa: F401  (re-exported)
 
 SYSTEM_PROMPT = """You write the end-of-session report for the APOLLO2028 Business Game, a \
 hospital-management simulation. Players are scored on four axes: patient experience, \
@@ -65,22 +62,6 @@ of what these results mean for the player. Refer to at least one specific decisi
 event title and day, and to one score that fell or one strategic action that was never used. \
 Introduce no new facts beyond the card. The tone must stay encouraging and constructive; \
 frame weaknesses as opportunities for next time."""
-
-RETRY_TEMPLATE = """That draft breaks these rules:
-{problems}
-Rewrite the whole {part} part so it follows all of them. Output only the rewritten text."""
-
-
-def chat(messages: list, model: str):
-    resp = requests.post(
-        OLLAMA_URL,
-        json={"model": model, "messages": messages, "stream": False, "options": OPTIONS},
-        timeout=900,
-    )
-    resp.raise_for_status()
-    body = resp.json()
-    return body["message"]["content"].strip(), body.get("prompt_eval_count", 0), body.get("done_reason") == "length"
-
 
 def _badness(text: str, problems: list) -> int:
     """Lower is better. A draft with fewer than 3 sentences (e.g. cut off) is penalised heavily."""

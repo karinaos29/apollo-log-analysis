@@ -205,7 +205,10 @@ def draft_evaluative(p: dict, f: dict) -> str:
         parts.append(f"The best opportunity for next time is that {_join_and(downs)}, which leaves room to improve.")
     unused = ["{%s}" % k for k in ("UNUSED_1", "UNUSED_2") if k in p]
     if unused:
-        parts.append(f"Trying {_join_and(unused)} was not part of this run and could be a useful next step.")
+        # unused-action names are raw labels ("wellness program", "hire nurse"), so quote them instead of
+        # building a sentence that needs articles and verb agreement
+        names = _join_and(['"' + p[k] + '"' for k in ("UNUSED_1", "UNUSED_2") if k in p])
+        parts.append(f"Options that were not used in this run, such as {names}, could be useful next steps.")
     if "DEC1_REF" in p:
         parts.append("Looking back at {DEC1_REF} is a good starting point for planning a different approach.")
     parts.append("With these insights, the next session is a good chance to build on what worked.")

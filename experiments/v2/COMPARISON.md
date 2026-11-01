@@ -8,7 +8,7 @@
 
 | Area | v1 | v2 |
 |---|---|---|
-| Model input | Full raw JSON log (64–184 KB) | Compact table from [table_converter.py](../../scripts/table_converter.py): outcome summary, daily metrics, event log, actions used/unused (2.5–5.7 KB, about 97% smaller) |
+| Model input | Full raw JSON log (64–184 KB) | Compact table from [table_converter.py](../../scripts/legacy/table_converter.py): outcome summary, daily metrics, event log, actions used/unused (2.5–5.7 KB, about 97% smaller) |
 | Number format | raw values | thousands separators on finance, `\|`-delimited table, human-readable column names |
 | TASK 1 prompt | generic trend/shift analysis | same, plus a required review of early/middle/late thirds with at least one finding from the first two |
 | TASK 2 prompt | outcome + one specific moment | outcome + start and end financial balance + a moment from each half of the run |

@@ -18,7 +18,7 @@
 | Decoding | defaults | temperature 0.3, top_p 0.9, seed 42, `num_ctx` 4096, `num_predict` 600 |
 | Prompt | rules only | rules + one-shot style example from a made-up session |
 
-Runner: [run_card_generation.py](../../scripts/run_card_generation.py). The v2 pipeline is unchanged and still runnable.
+Runner: [run_card_generation.py](../../scripts/legacy/run_card_generation.py) (moved to `scripts/legacy/` when v4 became the current pipeline). The v2 pipeline is unchanged and still runnable.
 
 ## 2. Results (Phi-3.5, scores from the fixed scorer)
 

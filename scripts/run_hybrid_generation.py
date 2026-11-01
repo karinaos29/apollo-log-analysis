@@ -14,18 +14,18 @@ the deterministic text is used and the log says so (mode "draft"/"template").
 Requires Ollama running locally with the model pulled.
 
 Usage:
-    python run_hybrid_generation.py path/to/log.json phi3.5 [output_dir] [--rewrite-descriptive]
+    python run_hybrid_generation.py path/to/log.json phi3.5 [output_dir] [--seed N] [--rewrite-descriptive]
+
+The default seed (42) writes output_<model>.md; any other seed writes output_<model>_seed<N>.md.
 """
 import sys
 import time
 from pathlib import Path
 
-import requests
-
 from context_card import clean_generation, compute_facts
 from report_draft import (build_phrases, draft_descriptive, draft_evaluative,
                           strengths_and_weak_spots, trim_sentences, validate_evaluative, validate_rewrite)
-from run_card_generation import OLLAMA_URL, OPTIONS, RETRY_TEMPLATE, chat
+from llm_client import DEFAULT_SEED, OPTIONS, RETRY_TEMPLATE, chat, unload
 
 SYSTEM_PROMPT = """You help write the end-of-session report for the APOLLO2028 Business Game, a \
 hospital-management simulation. The report has two parts: a DESCRIPTION of what happened and an \
@@ -82,10 +82,10 @@ def evaluative_prompt(f: dict, p: dict) -> str:
         resign="none" if f["resignations"] == 0 else "some", decisions="\n".join(lines) or "  - none", unused=unused)
 
 
-def attempt(messages, model, check, kind, fallback_text, mode_fallback, log, post=None):
+def attempt(messages, model, check, kind, fallback_text, mode_fallback, log, post=None, seed=None):
     """One call, one targeted retry, then the deterministic fallback. Returns (text, raw_model_text, mode)."""
     def one(msgs):
-        raw, tokens, cut = chat(msgs, model)
+        raw, tokens, cut = chat(msgs, model, seed)
         raw, note = clean_generation(raw, cut)
         if post:
             raw, note_post = post(raw)
@@ -115,7 +115,8 @@ def attempt(messages, model, check, kind, fallback_text, mode_fallback, log, pos
     return fallback_text, raw2, mode_fallback
 
 
-def run(json_path: str, model: str, output_dir: str = None, rewrite_descriptive: bool = False):
+def run(json_path: str, model: str, output_dir: str = None, rewrite_descriptive: bool = False, seed: int = None):
+    seed = DEFAULT_SEED if seed is None else seed
     facts = compute_facts(json_path)
     phrases = build_phrases(facts)
     draft_d = draft_descriptive(phrases, facts)
@@ -128,7 +129,7 @@ def run(json_path: str, model: str, output_dir: str = None, rewrite_descriptive:
         descriptive, raw_d, mode_d = attempt(
             [{"role": "system", "content": SYSTEM_PROMPT},
              {"role": "user", "content": TASK_REWRITE.format(draft=draft_d)}],
-            model, lambda t: validate_rewrite(draft_d, t, facts), "descriptive", draft_d, "draft", log)
+            model, lambda t: validate_rewrite(draft_d, t, facts), "descriptive", draft_d, "draft", log, seed=seed)
     else:
         descriptive, raw_d, mode_d = draft_d, "(not requested: descriptive part is the deterministic draft)", "draft"
         log.append("descriptive: deterministic draft (model rewrite disabled; enable with --rewrite-descriptive)")
@@ -139,7 +140,7 @@ def run(json_path: str, model: str, output_dir: str = None, rewrite_descriptive:
         [{"role": "system", "content": SYSTEM_PROMPT},
          {"role": "user", "content": evaluative_prompt(facts, phrases)}],
         model, lambda t: validate_evaluative(t, facts, phrases), "evaluative", eval_template, "template", log,
-        post=lambda t: trim_sentences(t, 5))
+        post=lambda t: trim_sentences(t, 5), seed=seed)
     print("--- Evaluative part ---\n" + evaluative + "\n")
 
     elapsed = time.time() - t0
@@ -149,12 +150,14 @@ def run(json_path: str, model: str, output_dir: str = None, rewrite_descriptive:
 
     out_dir = Path(output_dir) if output_dir else Path(".")
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"output_{model.replace(':', '_')}.md"
+    # the default seed gives the canonical output file; other seeds are repeat runs
+    suffix = "" if seed == DEFAULT_SEED else f"_seed{seed}"
+    out_path = out_dir / f"output_{model.replace(':', '_')}{suffix}.md"
     # The scorer reads only the Descriptive/Evaluative sections, so everything else
     # goes first and the Evaluative section stays last.
     out_path.write_text(
         f"# Output — {model} (pipeline v4: deterministic draft + constrained edits)\n\n"
-        f"*(Generation time: {elapsed:.1f}s)*\n\n"
+        f"*(Generation time: {elapsed:.1f}s | seed: {seed})*\n\n"
         f"*(Source — descriptive: {mode_d}, evaluative: {mode_e})*\n\n"
         f"## Python draft of the descriptive part\n{draft_d}\n\n"
         f"## Validation log\n" + "\n".join(f"- {l}" for l in log) + "\n\n"
@@ -163,12 +166,18 @@ def run(json_path: str, model: str, output_dir: str = None, rewrite_descriptive:
         f"## Evaluative part\n{evaluative}\n"
     )
     print(f"Saved to {out_path}")
-    requests.post(OLLAMA_URL, json={"model": model, "keep_alive": 0})  # free RAM on 8 GB Mac
+    unload(model)  # free RAM on 8 GB Mac
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    argv = sys.argv[1:]
+    seed = None
+    if "--seed" in argv:
+        i = argv.index("--seed")
+        seed = int(argv[i + 1])
+        del argv[i:i + 2]
+    args = [a for a in argv if not a.startswith("--")]
     if len(args) < 2:
-        print("Usage: python run_hybrid_generation.py <log.json> <model_name> [output_dir] [--rewrite-descriptive]")
+        print("Usage: python run_hybrid_generation.py <log.json> <model_name> [output_dir] [--seed N] [--rewrite-descriptive]")
         sys.exit(1)
-    run(args[0], args[1], args[2] if len(args) > 2 else None, "--rewrite-descriptive" in sys.argv)
+    run(args[0], args[1], args[2] if len(args) > 2 else None, "--rewrite-descriptive" in argv, seed)

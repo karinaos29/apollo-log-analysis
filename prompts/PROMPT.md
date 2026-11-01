@@ -1,7 +1,7 @@
 # Prompt Design
 
 The raw JSON log is first converted to a compact table by
-`scripts/table_converter.py` (format conversion only: no trends, shifts or
+`scripts/legacy/table_converter.py` (format conversion only: no trends, shifts or
 correlations are computed). The "find the key shifts and changes" step still
 happens **inside the prompt**, as the model's first task, using the model's own
 reasoning over the table.
@@ -18,7 +18,7 @@ already does structurally:
 This is a 3-turn conversation with the model (same chat session, so later
 turns can refer to the earlier analysis).
 
-The prompts below are the version in `scripts/run_generation.py` (pipeline v2).
+The prompts below are the version in `scripts/legacy/run_generation.py` (pipeline v2).
 The v1 prompts, which received the full raw JSON, are described in
 `experiments/v1/`.
 
@@ -142,7 +142,7 @@ per-score change with lowest/highest day, notable swings, every player decision
 with its event title, chosen option, cost and the score change over the next week,
 strategic actions used/never used). The model no longer analyses the log: the
 chain is two turns, and each output is validated against the card (one rewrite
-if it fails). The prompts live in `scripts/run_card_generation.py`; their content:
+if it fails). The prompts live in `scripts/legacy/run_card_generation.py`; their content:
 
 - **System prompt:** write the end-of-session report from a FACT CARD; use only
   card facts, copy figures exactly, keep each decision on its own day, say that

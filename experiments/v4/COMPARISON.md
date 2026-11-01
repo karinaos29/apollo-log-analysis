@@ -4,6 +4,7 @@
 **Earlier rounds:** [v1](../v1/COMPARISON.md) · [v2](../v2/COMPARISON.md) · [v3](../v3/COMPARISON.md)
 **Scoring:** current `scripts/score_outputs.py` applied to **all four versions**, so every number in this document comes from the same scorer. The figures inside the v1–v3 documents were computed with earlier scorer versions and differ slightly (see §3).
 **Outputs:** `experiments/v4/<scenario>/<strategy>/output_phi3.5.md` (each file holds the Python draft, the validation log, the model's raw text and the final report).
+**Repeat runs:** `experiments/v4/repeats/<scenario>/<strategy>/output_phi3.5_seed{1,2,3}.md`. **Hand review:** [REVIEW.md](REVIEW.md).
 
 ## 1. What v4 does
 
@@ -54,6 +55,11 @@ Means over the five scenarios (all versions scored with the current scorer):
 Model evaluation accepted in **5 of 5** runs: 3 on the first try, 2 after one rewrite; no template fallback. 4 of the 5 accepted texts were trimmed to 5 sentences. Timings come from different sessions on a shared 8 GB machine and are indicative only.
 
 Scorer note: the scorer now ignores score swings in Days 0–2 (start-up calibration) when it picks the "significant days". This lowers some earlier groundedness figures (e.g. v3 tutorial 0.50 → 0.25) compared with the v1–v3 documents.
+
+**Repeat runs (seeds 1, 2, 3; read by hand in [REVIEW.md](REVIEW.md)).** Across all 20 runs (5 logs × 4 seeds) the
+model evaluation was accepted 19 times (7 first try, 12 after one rewrite) and the template was used once. The
+descriptive part was identical in every run of a log. The review lists the recurring wording patterns and flags
+which final reports need the supervisor's revision.
 
 ## 4. How to read these numbers
 
