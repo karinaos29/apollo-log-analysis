@@ -64,6 +64,7 @@ session log (JSON) -> context_card.py      compute facts: balances, patients, fo
 | `data/` | session logs (5 single-player logs + 1 multi-player export, not used yet) |
 | `experiments/v1` … `v4` | outputs and comparison write-ups per pipeline version |
 | `experiments/v4/REVIEW.md` | reading of the final and repeat outputs, with reports flagged for supervisor revision |
+| `experiments/v4/BASELINE_COMPARISON.md` | our reports side by side with the platform's current summaries, plus financial-figure questions |
 | `prompts/PROMPT.md` | prompt texts and open questions |
 | `docs/` | evaluation criteria (v2 is current; v1 kept for reference) and model shortlist |
 
