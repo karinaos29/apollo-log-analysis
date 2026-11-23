@@ -59,11 +59,14 @@ session log (JSON) -> context_card.py      compute facts: balances, patients, fo
 | `scripts/run_hybrid_generation.py` | v4 runner for one log (`--seed N`, optional `--rewrite-descriptive`) |
 | `scripts/batch_hybrid.py` | v4 runner for all logs, with repeat seeds |
 | `scripts/llm_client.py` | Ollama client and fixed decoding settings |
+| `scripts/evidence_labels.py` | before/after evidence labels: may a decision be linked to a score change? (reads the platform's digest code read-only) |
 | `scripts/score_outputs.py`, `scripts/batch_score.py` | automatic scores (see `docs/EVALUATION_CRITERIA_v2.md`) |
 | `scripts/legacy/` | v2 and v3 pipelines, kept to reproduce those experiments |
 | `data/` | session logs (5 single-player logs + 1 multi-player export, not used yet) |
 | `experiments/v1` … `v4` | outputs and comparison write-ups per pipeline version |
 | `experiments/v4/REVIEW.md` | reading of the final and repeat outputs, with reports flagged for supervisor revision |
+| `experiments/stockholm/REVIEW.md` | hand review of the platform's own AI feedback (Stockholm workshop), with evidence labels |
+| `experiments/v4/BASELINE_COMPARISON.md` | our reports side by side with the platform's current summaries, plus financial-figure questions |
 | `prompts/PROMPT.md` | prompt texts and open questions |
 | `docs/` | evaluation criteria (v2 is current; v1 kept for reference) and model shortlist |
 
