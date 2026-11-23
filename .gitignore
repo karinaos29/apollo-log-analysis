@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 venv/
 .DS_Store
+
+# Platform codebase (used read-only as a source, not part of this repo)
+healthcare-wargame-main/
+# Workshop session exports (contain team names and reflections; keep out of the public repo)
+*all_players*.json
+!data/tutorial/apollo_business_game_data-post_pandemic_financial_recovery-all_players-2026-08-30T20-27-29.json
